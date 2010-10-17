@@ -286,10 +286,12 @@ module Sass::Script
       #
       # @return [{Symbol => Object}]
       attr_reader :options
+      attr_reader :environment
 
-      # @param options [{Symbol => Object}] See \{#options}
-      def initialize(options)
-        @options = options
+      # @param environment [Sass::Environment] The current environment
+      def initialize(environment)
+        @environment = environment
+        @options = environment.options
 
         # We need to include this individually in each instance
         # because of an icky Ruby restriction

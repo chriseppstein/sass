@@ -82,7 +82,7 @@ module Sass
         unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
           opts(Script::String.new("#{name}(#{args.join(', ')})"))
         else
-          opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
+          opts(Functions::EvaluationContext.new(environment).send(ruby_name, *args))
         end
       rescue ArgumentError => e
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
