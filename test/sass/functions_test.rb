@@ -17,6 +17,30 @@ module Sass::Script::Functions
     Sass::Script::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
+
+  def access_with_a_symbol(kwargs)
+    unless (v = kwargs.get_var(:a_symbol)).is_a?(Sass::Script::Literal)
+      raise Sass::SyntaxError, "Couldn't get variable with a symbol"
+    end
+    v
+  end
+  declare :access_with_a_symbol, [], :var_kwargs => true
+
+  def access_with_a_dash(kwargs)
+    unless (v = kwargs.get_var("a-dash")).is_a?(Sass::Script::Literal)
+      raise Sass::SyntaxError, "Couldn't get variable with a symbol"
+    end
+    v
+  end
+  declare :access_with_a_dash, [], :var_kwargs => true
+
+  def access_with_an_underscore(kwargs)
+    unless (v = kwargs.get_var("an_underscore")).is_a?(Sass::Script::Literal)
+      raise Sass::SyntaxError, "Couldn't get variable with a symbol"
+    end
+    v
+  end
+  declare :access_with_an_underscore, [], :var_kwargs => true
 end
 
 module Sass::Script::Functions::UserFunctions
@@ -706,6 +730,21 @@ MSG
 
   def test_only_kw_args
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
+  end
+
+  def test_kwargs_access_with_a_symbol
+    assert_equal "true", evaluate("access-with-a-symbol($a-symbol: true)")
+    assert_equal "true", evaluate("access-with-a-symbol($a_symbol: true)")
+  end
+
+  def test_kwargs_access_with_a_dash
+    assert_equal "true", evaluate("access-with-a-dash($a-dash: true)")
+    assert_equal "true", evaluate("access-with-a-dash($a_dash: true)")
+  end
+
+  def test_kwargs_access_with_an_underscore
+    assert_equal "true", evaluate("access-with-an-underscore($an-underscore: true)")
+    assert_equal "true", evaluate("access-with-an-underscore($an_underscore: true)")
   end
 
   private

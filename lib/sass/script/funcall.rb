@@ -2,6 +2,15 @@ require 'sass/script/functions'
 
 module Sass
   module Script
+    # Provides a consistent interface for getting a variable in ruby
+    # from a keyword argument hash that accounts for underscores/dash equivalence
+    # and allows the caller to pass a symbol instead of a string.
+    module VariableReader
+      def get_var(variable_name)
+        self[variable_name.to_s.gsub(/-/,"_")]
+      end
+    end
+
     # A SassScript parse node representing a function call.
     #
     # A function call either calls one of the functions in {Script::Functions},
@@ -105,7 +114,7 @@ module Sass
 
         if keywords.size > 0
           if signature.var_kwargs
-            args << Sass::Util.map_hash(keywords) {|k, v| [k.to_sym, v]}
+            args << Sass::Util.map_hash(keywords) {|k, v| [k, v]}.extend(VariableReader)
           else
             raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
           end
