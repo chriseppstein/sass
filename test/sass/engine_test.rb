@@ -2158,7 +2158,7 @@ SASS
   display: none !important; }
 CSS
 .advanced
-  display: none !important // yeah, yeah. it's not really a style anyway.
+  display: none !important // yeah, yeah. its not really a style anyway.
 SASS
   end
 
@@ -2434,6 +2434,27 @@ SASS
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
+  def test_directive_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@foo hi {
+  a: 3; }
+CSS
+$foo: "hi"
+@foo \#{$foo}
+  a: 3
+SASS
+  end
+
+  def test_media_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@media screen {
+  a: 3; }
+CSS
+$media: "screen"
+@media \#{$media}
+  a: 3
+SASS
+  end
 
   private
 

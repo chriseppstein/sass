@@ -7,7 +7,7 @@
 
 * Sass now logs message thru a logger object which can be changed to
   provide integration with other frameworks' logging infrastructure.
-
+* Allow interpolation in `@media` directives.
 
 ## 3.1.2
 
