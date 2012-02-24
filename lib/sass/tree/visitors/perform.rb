@@ -13,6 +13,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     @environment = env
     # Stack trace information, including mixin includes and imports.
     @stack = []
+    @imported = Set.new
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
@@ -137,14 +138,20 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     if path = node.css_import?
       return Sass::Tree::CssImportNode.resolved("url(#{path})")
     end
-    file = node.imported_file
-    handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
+    key = node.import_key
+    unless @imported.include?(key)
+      @imported << key
+      file = node.imported_file
+      handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
 
-    @stack.push(:filename => node.filename, :line => node.line)
-    root = file.to_tree
-    Sass::Tree::Visitors::CheckNesting.visit(root)
-    node.children = root.children.map {|c| visit(c)}.flatten
-    node
+      @stack.push(:filename => node.filename, :line => node.line)
+      root = file.to_tree
+      Sass::Tree::Visitors::CheckNesting.visit(root)
+      node.children = root.children.map {|c| visit(c)}.flatten
+      node
+    else
+      []
+    end
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.imported_file.options[:filename])
     e.add_backtrace(:filename => node.filename, :line => node.line)
