@@ -22,7 +22,7 @@ module Sass
       # @return [Sass::Engine]
       # @raise [Sass::SyntaxError] If no file could be found to import.
       def imported_file
-        @imported_file ||= import
+        @imported_file ||= import!
       end
 
       # Returns whether or not this import should emit a CSS @import declaration
@@ -36,33 +36,58 @@ module Sass
         end
       end
 
+      def import_key
+        engine, importer = import
+        importer.key(@imported_filename, options) if importer
+      end
+
       private
 
-      def import
-        paths = @options[:load_paths]
-
-        if @options[:importer]
-          f = @options[:importer].find_relative(
-            @imported_filename, @options[:filename], @options.dup)
-          return f if f
-        end
-
-        paths.each do |p|
-          if f = p.find(@imported_filename, @options.dup)
-            return f
+      def import!
+        engine, importer = import
+        unless engine
+          paths = @options[:load_paths]
+          message = "File to import not found or unreadable: #{@imported_filename}.\n"
+          if paths.size == 1
+            message << "Load path: #{paths.first}"
+          else
+            message << "Load paths:\n  " << paths.join("\n  ")
           end
+          raise SyntaxError.new(message)
         end
 
-        message = "File to import not found or unreadable: #{@imported_filename}.\n"
-        if paths.size == 1
-          message << "Load path: #{paths.first}"
-        else
-          message << "Load paths:\n  " << paths.join("\n  ")
-        end
-        raise SyntaxError.new(message)
+        engine
       rescue SyntaxError => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end
+
+      def import
+        unless defined?(@imported_engine)
+          @imported_engine, @importer_used = import_relative || import_absolute
+        end
+
+        [@imported_engine, @importer_used]
+      end
+
+      def import_relative
+        if @options[:importer]
+          f = @options[:importer].find_relative(
+            @imported_filename, @options[:filename], @options.dup)
+          return [f, @options[:importer]] if f
+        end
+        nil
+      end
+
+      def import_absolute
+        @options[:load_paths].each do |p|
+          if f = p.find(@imported_filename, @options.dup)
+            return [f, p]
+          end
+        end
+
+        nil
+      end
+
     end
   end
 end
