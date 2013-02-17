@@ -4,7 +4,7 @@ module Sass::Script
   #
   #     $color = hsl(120deg, 100%, 50%)
   #
-  # and it will call {Sass::Script::Functions#hsl}.
+  # and it will call {Functions#hsl}.
   #
   # The following functions are provided:
   #
@@ -196,14 +196,14 @@ module Sass::Script
   # {declare} can also allow your function to take arbitrary keyword arguments.
   #
   # There are a few things to keep in mind when modifying this module.
-  # First of all, the arguments passed are {Sass::Script::Literal} objects.
+  # First of all, the arguments passed are {Literal} objects.
   # Literal objects are also expected to be returned.
   # This means that Ruby values must be unwrapped and wrapped.
   #
-  # Most Literal objects support the {Sass::Script::Literal#value value} accessor
+  # Most Literal objects support the {Literal#value value} accessor
   # for getting their Ruby values.
-  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
-  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
+  # Color objects, though, must be accessed using {Color#rgb rgb},
+  # {Color#red red}, {Color#blue green}, or {Color#blue blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -262,7 +262,7 @@ module Sass::Script
     #   Whether the function accepts other keyword arguments
     #   in addition to those in `:args`.
     #   If this is true, the Ruby function will be passed a hash from strings
-    #   to {Sass::Script::Literal}s as the last argument.
+    #   to {Literal}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
     #
@@ -341,7 +341,7 @@ module Sass::Script
       # @example
       #   assert_type value, :String
       #   assert_type value, :Number
-      # @param value [Sass::Script::Literal] A SassScript value
+      # @param value [Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
       # @param name [String, nil] The name of the argument.
       def assert_type(value, type, name = nil)
@@ -1018,15 +1018,16 @@ module Sass::Script
     #   @return [Color]
     #   @raise [ArgumentError] if `color` isn't a color
     #   @see #desaturate
+    #
     # @overload grayscale(number)
     #   Returns an unquoted string `grayscale(number)`, as though the function
     #   were not defined. This is for the `grayscale` function used in
     #   `-webkit-filter`.
     #
     #   @param number [Number]
-    #   @return [Sass::Script::String]
+    #   @return [String]
     def grayscale(color)
-      return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
+      return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Number)
       desaturate color, Number.new(100)
     end
     declare :grayscale, [:color]
@@ -1095,7 +1096,7 @@ module Sass::Script
 
     # Returns the number of characters in a string.
     #
-    # @return [Sass::Script::Number]
+    # @return [Number]
     # @raise [ArgumentError] if `string` isn't a string
     # @example
     #   str-length("foo") => 3
@@ -1111,7 +1112,7 @@ module Sass::Script
     # Negative indices count from the end of the string.
     # The inserted string will starts at the given index.
     #
-    # @return [Sass::Script::String]
+    # @return [String]
     # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
     # @example
     #   str-insert("abcd", "X", 1) => "Xabcd"
@@ -1135,7 +1136,7 @@ module Sass::Script
     # Starting at the left, finds the index of the first location
     # where `substring` is found in `string`.
     #
-    # @return [Sass::Script::String]
+    # @return [String]
     # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
     # @example
     #   str-index(abcd, a)  => 1
@@ -1153,7 +1154,7 @@ module Sass::Script
 
     # Extract a substring from `string` from `start` index to `end` index.
     #
-    # @return [Sass::Script::String]
+    # @return [String]
     # @raise [ArgumentError] if `string` isn't a string or `start` and `end` aren't unitless numbers
     # @example
     #  str-extract(abcd,2,3)    => bc
@@ -1195,7 +1196,7 @@ module Sass::Script
     declare :str_index, [:string, :start, :end]
     # Convert a string to upper case
     #
-    # @return [Sass::Script::String]
+    # @return [String]
     # @raise [ArgumentError] if `string` isn't a string
     # @example
     #   to-upper-case(abcd) => ABCD
@@ -1208,7 +1209,7 @@ module Sass::Script
 
     # Convert a string to lower case
     #
-    # @return [Sass::Script::String]
+    # @return [String]
     # @raise [ArgumentError] if `string` isn't a string
     # @example
     #   to-lower-case(ABCD) => abcd
