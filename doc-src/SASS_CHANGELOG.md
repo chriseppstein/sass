@@ -75,6 +75,11 @@ Thanks to Alexander Pavlov for implementing this.
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed.
 
+* The Sass command line compiler no longer automatically places the
+  current working directory into the Sass load path for importing files.
+  If you need the current working directory to be available, set
+  `SASSPATH=.` in your shell's environment.
+
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.

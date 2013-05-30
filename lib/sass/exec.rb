@@ -197,7 +197,7 @@ MESSAGE
       def initialize(args)
         super
         @options[:for_engine] = {
-          :load_paths => ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+          :load_paths => (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
         }
         @default_syntax = :sass
       end
