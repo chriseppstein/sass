@@ -197,7 +197,8 @@ MESSAGE
       def initialize(args)
         super
         @options[:for_engine] = {
-          :load_paths => (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+          # The select here prevents errors when the environment's load paths specified do not exist.
+          :load_paths => (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR).select{|d| File.directory?(d)}
         }
         @default_syntax = :sass
       end
