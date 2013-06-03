@@ -55,12 +55,12 @@ module Sass
   # `name`: `String`
   # : The name of the mixin/function.
   #
-  # `args`: `Array<(Script::Node, Script::Node)>`
+  # `args`: `Array<(Script::Tree::Node, Script::Tree::Node)>`
   # : The arguments for the mixin/function.
   #   Each element is a tuple containing the variable node of the argument
   #   and the parse tree for the default value of the argument.
   #
-  # `splat`: `Script::Node?`
+  # `splat`: `Script::Tree::Node?`
   # : The variable node of the splat argument for this callable, or null.
   #
   # `environment`: {Sass::Environment}
@@ -684,7 +684,7 @@ WARNING
 
     def parse_property(name, parsed_name, value, prop, line, start_offset)
       if value.strip.empty?
-        expr = Sass::Script::String.new("")
+        expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
         end_offset = start_offset
       else
         expr = parse_script(value, :offset => to_parser_offset(start_offset))
@@ -730,7 +730,6 @@ WARNING
         else
           value = self.class.parse_interp(
             line.text, line.index, to_parser_offset(line.offset), :filename => @filename)
-          value[0].slice!(2) if loud # get rid of the "!"
         end
         value = with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
@@ -1064,7 +1063,7 @@ WARNING
     end
 
     # It's important that this have strings (at least)
-    # at the beginning, the end, and between each Script::Node.
+    # at the beginning, the end, and between each Script::Tree::Node.
     #
     # @private
     def self.parse_interp(text, line, offset, options)

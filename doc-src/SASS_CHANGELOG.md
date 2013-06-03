@@ -56,6 +56,12 @@ Thanks to Alexander Pavlov for implementing this.
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
+* Loud comments no longer strip the leading exclamation mark. This
+  prevents loud comments from being strip by downstream processors.
+
+* Add a function `unique-id()` that will return a CSS identifier that is
+  unique within the scope of a single CSS file.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -80,14 +86,26 @@ Thanks to Alexander Pavlov for implementing this.
   If you need the current working directory to be available, set
   `SASSPATH=.` in your shell's environment.
 
+* `grey` and `transparent` are no longer interpreted as strings; they're now
+  interpreted as colors, as per the CSS spec.
+
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-* `grey` and `transparent` are no longer interpreted as strings; they're now
-  interpreted as colors, as per the CSS spec.
+* Many classes in the \{Sass::Script} have been rearranged. All the value
+  classes have been moved into \{Sass::Script::Value} (e.g.
+  \{Sass::Script::Value::Color}, \{Sass::Script::Value::String}, etc). Their
+  base class is now \{Sass::Script::Value::Base} instead of
+  `Sass::Script::Literal`. All the parse tree classes have been moved into
+  \{Sass::Script::Tree} (e.g. \{Sass::Script::Tree::Node},
+  \{Sass::Script::Tree::Operation}, etc).
+
+  The old names will continue to work for the next couple releases, but they
+  will be removed eventually. Any code using them should upgrade to the new
+  names.
 
 ## 3.2.9
 

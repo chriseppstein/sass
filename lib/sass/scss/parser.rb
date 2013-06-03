@@ -45,7 +45,7 @@ module Sass
       # Note that this won't assert that the identifier takes up the entire input string;
       # it's meant to be used with `StringScanner`s as part of other parsers.
       #
-      # @return [Array<String, Sass::Script::Node>, nil]
+      # @return [Array<String, Sass::Script::Tree::Node>, nil]
       #   The interpolated identifier, or nil if none could be parsed
       def parse_interp_ident
         init_scanner!
@@ -140,7 +140,6 @@ module Sass
           value = [text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */']
         else
           value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
-          value[0].slice!(2) if loud # get rid of the "!"
           value.unshift(@scanner.
             string[0...@scanner.pos].
             reverse[/.*?\*\/(.*?)($|\Z)/, 1].
@@ -903,14 +902,24 @@ module Sass
         value_start_pos = source_position
         @use_property_exception ||= space || !tok?(IDENT)
 
-        return value_start_pos, true, Sass::Script::String.new("") if tok?(/\{/)
+        if tok?(/\{/)
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+          str.line = source_position.line
+          str.source_range = range(source_position)
+          return value_start_pos, true, str
+        end
+
+        start_pos = source_position
         # This is a bit of a dirty trick:
         # if the value is completely static,
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
         if val = tok(STATIC_VALUE, true)
-          return value_start_pos, space, Sass::Script::String.new(val.strip)
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
+          str.line = start_pos.line
+          str.source_range = range(start_pos)
+          return value_start_pos, space, str
         end
         return value_start_pos, space, sass_script(:parse)
       end
@@ -968,7 +977,7 @@ MESSAGE
       def var_expr
         return unless tok(/\$/)
         line = @line
-        var = Sass::Script::Variable.new(tok!(IDENT))
+        var = Sass::Script::Tree::Variable.new(tok!(IDENT))
         var.line = line
         var
       end

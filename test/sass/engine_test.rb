@@ -9,16 +9,16 @@ require 'pathname'
 
 module Sass::Script::Functions::UserFunctions
   def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+    Sass::Script::Value::String.new(@options[name.value.to_sym].to_s)
   end
 
   def set_a_variable(name, value)
     environment.set_var(name.value, value)
-    return Sass::Script::Null.new
+    return Sass::Script::Value::Null.new
   end
 
   def get_a_variable(name)
-    environment.var(name.value) || Sass::Script::String.new("undefined")
+    environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
 end
 
@@ -1843,7 +1843,7 @@ SASS
 
   def test_loud_comment_in_compressed_mode
     assert_equal <<CSS, render(<<SASS, :style => :compressed)
-foo{color:blue;/* foo
+foo{color:blue;/*! foo
  * bar
  */}
 CSS
@@ -1857,10 +1857,9 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/* Hue: 327.21649deg */
+/*! Hue: 327.21649deg */
 CSS
-/*!
-  Hue: \#{hue(#f836a0)}
+/*! Hue: \#{hue(#f836a0)}
 SASS
   end
 
@@ -2538,15 +2537,15 @@ SASS
 
   def test_interpolated_comment_in_mixin
     assert_equal <<CSS, render(<<SASS)
-/* color: red */
+/*! color: red */
 .foo {
   color: red; }
 
-/* color: blue */
+/*! color: blue */
 .foo {
   color: blue; }
 
-/* color: green */
+/*! color: green */
 .foo {
   color: green; }
 CSS
@@ -2841,7 +2840,7 @@ CSS
 /* \\\#{foo}
 SASS
     assert_equal <<CSS, render(<<SASS)
-/* \#{foo} */
+/*! \#{foo} */
 CSS
 /*! \\\#{foo}
 SASS
@@ -3032,9 +3031,9 @@ SCSS
   end
 
   def test_changing_precision
-    old_precision = Sass::Script::Number.precision
+    old_precision = Sass::Script::Value::Number.precision
     begin
-      Sass::Script::Number.precision = 8
+      Sass::Script::Value::Number.precision = 8
       assert_equal <<CSS, render(<<SASS)
 div {
   maximum: 1.00000001;
@@ -3045,7 +3044,7 @@ div
   too-much: 1.000000001
 SASS
     ensure
-      Sass::Script::Number.precision = old_precision
+      Sass::Script::Value::Number.precision = old_precision
     end
   end
 
