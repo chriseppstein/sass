@@ -236,7 +236,7 @@ module Sass::Plugin
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = Listen::Listener.new(*directories, :relative_paths => false) do |modified, added, removed|
+      listener = Listen::Listener.new(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
         a_sass_file_changed = false
         modified.each do |f|
           next unless f =~ /\.s[ac]ss$/
