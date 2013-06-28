@@ -1975,6 +1975,119 @@ foo
 SASS
   end
 
+  def test_selector_script
+    assert_equal(<<CSS, render(<<SASS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo .bar
+  content: "\#{&}"
+SASS
+  end
+
+  def test_nested_selector_script
+    assert_equal(<<CSS, render(<<SASS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo
+  .bar
+    content: "\#{&}"
+SASS
+  end
+
+  def test_nested_selector_script_with_outer_comma_selector
+    assert_equal(<<CSS, render(<<SASS))
+.foo .baz, .bar .baz {
+  content: ".foo .baz, .bar .baz"; }
+CSS
+.foo, .bar
+  .baz
+    content: "\#{&}"
+SASS
+  end
+
+  def test_nested_selector_script_with_inner_comma_selector
+    assert_equal(<<CSS, render(<<SASS))
+.foo .bar, .foo .baz {
+  content: ".foo .bar, .foo .baz"; }
+CSS
+.foo
+  .bar, .baz
+    content: "\#{&}"
+SASS
+  end
+
+  def test_selector_script_through_mixin
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  content: ".foo"; }
+CSS
+=mixin
+  content: "\#{&}"
+
+.foo
+  +mixin
+SASS
+  end
+
+  def test_selector_script_through_content
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  content: ".foo"; }
+CSS
+=mixin
+  @content
+
+.foo
+  +mixin
+    content: "\#{&}"
+SASS
+  end
+
+  def test_selector_script_through_function
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  content: ".foo"; }
+CSS
+@function fn()
+  @return "\#{&}"
+
+.foo
+  content: fn()
+SASS
+  end
+
+  def test_selector_script_through_media
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  content: "outer"; }
+  @media screen {
+    .foo .bar {
+      content: ".foo .bar"; } }
+CSS
+.foo
+  content: "outer"
+  @media screen
+    .bar
+      content: "\#{&}"
+SASS
+  end
+
+  def test_selector_script_save_and_reuse
+    assert_equal(<<CSS, render(<<SASS))
+.bar {
+  content: ".foo"; }
+CSS
+$var: null
+.foo
+  $var: &
+
+.bar
+  content: "\#{$var}"
+SASS
+  end
+
   # SassScript string behavior
 
   def test_plus_preserves_quotedness
