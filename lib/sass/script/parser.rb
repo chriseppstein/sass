@@ -259,7 +259,7 @@ RUBY
         return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
 
         key, value = map_pair(e)
-        map = node(Map.new({key => value}), start_pos)
+        map = node(Value::Map.new({key => value}), start_pos)
         while tok = try_tok(:comma)
           key, value = assert_expr(:map_pair)
           map.value[key] = value

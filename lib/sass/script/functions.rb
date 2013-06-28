@@ -1506,7 +1506,12 @@ module Sass::Script
     # @param list [Value] The list
     # @return [Sass::Script::Value::Number] The length
     def length(list)
-      Sass::Script::Value::Number.new(list.to_a.size)
+      case list
+      when Sass::Script::Value::Map
+        Sass::Script::Value::Number.new(list.value.size)
+      else
+        Sass::Script::Value::Number.new(list.to_a.size)
+      end
     end
     declare :length, [:list]
 
@@ -1527,16 +1532,23 @@ module Sass::Script
     # @raise [ArgumentError] If `n` isn't an integer whose absolute value is between 1 and the list's length.
     def nth(list, n)
       assert_type n, :Number
-      if !n.int? || n.to_i == 0
-        raise ArgumentError.new("List index #{n} must be a non-zero integer")
-      elsif list.to_a.size == 0
-        raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i.abs > (size = list.to_a.size)
-        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
-      end
+      if list.is_a?(Sass::Script::Value::Map)
+        index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+        map = list
+        key = map.value.keys[index]
+        Sass::Script::List.new([key, map.value[key]], :comma)
+      else
+        if !n.int? || n.to_i == 0
+          raise ArgumentError.new("List index #{n} must be a non-zero integer")
+        elsif list.to_a.size == 0
+          raise ArgumentError.new("List index is #{n} but list has no items")
+        elsif n.to_i.abs > (size = list.to_a.size)
+          raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+        end
 
-      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
-      list.to_a[index]
+        index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+        list.to_a[index]
+      end
     end
     declare :nth, [:list, :n]
 
@@ -1788,6 +1800,29 @@ module Sass::Script
       Sass::Script::Value::Bool.new(environment.mixin(named.value))
     end
     declare :mixin_exists, [:named]
+
+    def map_get(map, key)
+      assert_type map, :Map
+      map.value[key] || Sass::Script::Value::Null.new
+    end
+    declare :map_get, [:map, :key]
+
+    def map_merge(into, from)
+      assert_type into, :Map
+      assert_type from, :Map
+      Sass::Script::Value::Map.new(into.value.merge(from.value))
+    end
+    declare :map_merge, [:into, :from]
+
+    def map_keys(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(map.value.keys, :comma)
+    end
+
+    def map_values(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(map.value.values, :comma)
+    end
 
     private
 

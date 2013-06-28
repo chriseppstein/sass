@@ -176,6 +176,18 @@ MSG
       eq(other).to_bool
     end
 
+    # Returns the hash code of this value. Two objects' hash codes should be
+    # equal if the objects are equal.
+    #
+    # @return [Fixnum] The hash code.
+    def hash
+      value.hash
+    end
+
+    def eql?(other)
+      self == other
+    end
+
     # @return [Fixnum] The integer value of this value
     # @raise [Sass::SyntaxError] if this value isn't an integer
     def to_i
@@ -208,6 +220,21 @@ MSG
     def null?
       false
     end
+
+    # Evaluates the value.
+    #
+    # \{#perform} shouldn't be overridden directly;
+    # instead, override \{#\_perform}.
+    #
+    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+    # @return [Sass::Script::Value] The SassScript object that is the value of the SassScript
+    def perform(environment)
+      _perform(environment)
+    rescue Sass::SyntaxError => e
+      e.modify_backtrace(:line => line)
+      raise e
+    end
+
 
     protected
 

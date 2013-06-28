@@ -1,5 +1,5 @@
-module Sass::Script
-  class Map < Literal
+module Sass::Script::Value
+  class Map < Base
     attr_reader :value
 
     def initialize(hash)
@@ -45,7 +45,7 @@ module Sass::Script
 
     protected
 
-    # @see Node#_perform
+    # @see Base#_perform
     def _perform(environment)
       # TODO: disallow duplicate keys here
       map = Sass::Script::Map.new(Sass::Util.map_hash(value) do |k, v|

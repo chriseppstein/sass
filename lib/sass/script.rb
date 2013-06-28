@@ -42,6 +42,7 @@ module Sass
       :Bool => Sass::Script::Value::Bool,
       :Color => Sass::Script::Value::Color,
       :List => Sass::Script::Value::List,
+      :Map => Sass::Script::Value::Map,
       :Null => Sass::Script::Value::Null,
       :Number => Sass::Script::Value::Number,
       :String => Sass::Script::Value::String,
