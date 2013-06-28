@@ -7,6 +7,8 @@ module Sass::Script::Tree
   # {Sass::Script::Functions}, or if no function with the given name exists it
   # returns a string representation of the function call.
   class Funcall < Node
+    include Sass::Script::Functions::Assertions
+
     # The name of the function.
     #
     # @return [String]
@@ -97,12 +99,22 @@ module Sass::Script::Tree
     def _perform(environment)
       args = @args.map {|a| a.perform(environment)}
       splat = @splat.perform(environment) if @splat
-      if fn = environment.function(@name)
+      name = if @name == "call"
+               n = args.shift
+               unless n
+                 raise ArgumentError.new("A function name must be provided")
+               end
+               assert_type n, :String
+               n.value
+             else
+               @name
+             end
+      if fn = environment.function(name)
         keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
         return perform_sass_fn(fn, args, keywords, splat)
       end
 
-      ruby_name = @name.tr('-', '_')
+      ruby_name = name.tr('-', '_')
       args = construct_ruby_args(ruby_name, args, splat, environment)
 
       unless Sass::Script::Functions.callable?(ruby_name)
@@ -158,7 +170,7 @@ module Sass::Script::Tree
           e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         raise e
       end
-      raise Sass::SyntaxError.new("#{message} for `#{name}'")
+      raise Sass::SyntaxError.new("#{message} for `#{name.nil? ? @name : name}'")
     end
 
     # Compass historically overrode this before it changed name to {#to\_value}.

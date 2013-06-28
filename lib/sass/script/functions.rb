@@ -337,29 +337,8 @@ module Sass::Script
       @signatures[method_name].first
     end
 
-    # The context in which methods in {Script::Functions} are evaluated.
-    # That means that all instance methods of {EvaluationContext}
-    # are available to use in functions.
-    class EvaluationContext
-      include Functions
-
-
-      # The environment of the {Sass::Engine}
-      #
-      # @return [Environment]
-      attr_reader :environment
-
-      # The options hash for the {Sass::Engine} that is processing the function call
-      #
-      # @return [{Symbol => Object}]
-      attr_reader :options
-
-      # @param environment [Environment] See \{#environment}
-      def initialize(environment)
-        @environment = environment
-        @options = environment.options
-      end
-
+    # Useful methods for making assertions about Sass values.
+    module Assertions
       # Asserts that the type of a given SassScript value
       # is the expected type (designated by a symbol).
       #
@@ -419,6 +398,30 @@ module Sass::Script
         else
           raise ArgumentError.new("Expected #{number} to be an integer")
         end
+      end
+    end
+
+    # The context in which methods in {Script::Functions} are evaluated.
+    # That means that all instance methods of {EvaluationContext}
+    # are available to use in functions.
+    class EvaluationContext
+      include Functions
+      include Assertions
+
+      # The environment of the {Sass::Engine}
+      #
+      # @return [Environment]
+      attr_reader :environment
+
+      # The options hash for the {Sass::Engine} that is processing the function call
+      #
+      # @return [{Symbol => Object}]
+      attr_reader :options
+
+      # @param environment [Environment] See \{#environment}
+      def initialize(environment)
+        @environment = environment
+        @options = environment.options
       end
     end
 
