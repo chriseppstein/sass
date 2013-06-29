@@ -118,6 +118,7 @@ module Sass::Script::Tree
       args = construct_ruby_args(ruby_name, args, splat, environment)
 
       unless Sass::Script::Functions.callable?(ruby_name)
+        @name = name
         opts(to_literal(args))
       else
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
