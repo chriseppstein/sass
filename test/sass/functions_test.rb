@@ -1262,6 +1262,8 @@ MSG
     assert_equal evaluate("lighten($color: blue, $amount: 5%)"), evaluate("call(lighten, $color: blue, $amount: 5%)")
     # name is performed so that it can be an expression
     assert_equal evaluate("lighten($color: blue, $amount: 5%)"), evaluate("call($fn, $color: blue, $amount: 5%)", env("fn" => Sass::Script::String.new("lighten")))
+    # unknown functions are passed through to CSS
+    assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
     begin
       # errors for the call function itself are reported correctly
       # An argument is required
