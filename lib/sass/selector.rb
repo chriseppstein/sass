@@ -343,7 +343,7 @@ module Sass
         res = ["["]
         res.concat(@namespace) << "|" if @namespace
         res.concat @name
-        (res << @operator).concat @value if @value
+        (res << @operator).concat enforce_selector_style(@value, options) if @value
         (res << " ").concat @flags if @flags
         res << "]"
       end
@@ -351,6 +351,21 @@ module Sass
       # @see AbstractSequence#specificity
       def specificity
         SPECIFICITY_BASE
+      end
+
+      protected
+
+      def normalized_name
+        @normalized_name ||= @name.is_a?(Array) ? @name.map {|n| n.downcase} : @name.downcase
+      end
+
+      def attribute_is?(name)
+        Array(normalized_name).include?(name)
+      end
+
+      def enforce_selector_style(identifier, options)
+        return identifier unless attribute_is?("class") || attribute_is?("id")
+        super(identifier, options.merge(:convert_partial_names => true))
       end
     end
 

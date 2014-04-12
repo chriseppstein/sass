@@ -125,6 +125,26 @@ module Sass
         return ns1, true if ns2 == ['*']
         [ns1 || ns2, true]
       end
+
+      protected
+
+      def enforce_selector_style(identifier, options)
+        return identifier unless options[:selector_style]
+        return identifier.map{|i| enforce_selector_style(i, options) } if identifier.is_a?(Array)
+        case options[:selector_style]
+        when :dashed
+          identifier.gsub!(/([a-z])([A-Z])/) do |match|
+            "#{match[0]}-#{match[1].downcase}"
+          end
+          identifier.gsub!(/([a-zA-Z])_([a-zA-Z])/) do |match|
+            "#{match[0]}-#{match[2].downcase}"
+          end
+          identifier = identifier.gsub(/^(["'])?_|_(["'])?$/, '\1-\2') if options[:convert_partial_names]
+          identifier.downcase!
+        end
+
+        identifier
+      end
     end
   end
 end

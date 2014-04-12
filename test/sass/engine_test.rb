@@ -3159,6 +3159,50 @@ CSS
 }
 SASS
   end
+  def test_selector_style_dashed
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss, :selector_style => :dashed, :style => :compact)
+.some-thing { was: underscored; }
+
+.some-thing { was: camelCase; }
+
+.some-thing { was: CamelCase; }
+
+.some-thing { was: dashed; }
+
+.some-thing { was: shouting; }
+
+[class="some-thing"] { was: class_attribute_underscore; }
+
+[id^="some-"] { was: id_attribute_trailing_underscore; }
+
+[id="some-thing"] { was: id_attribute_underscore; }
+CSS
+.some_thing { was: underscored; }
+.someThing { was: camelCase; }
+.SomeThing { was: CamelCase; }
+.some-thing { was: dashed; }
+.SOME_THING { was: shouting; }
+[class="some_thing"] { was: class_attribute_underscore; }
+[id^="some_"] { was: id_attribute_trailing_underscore; }
+[id="some_thing"] { was: id_attribute_underscore; }
+SASS
+  end
+  def test_unchanged_selector_style_dashed
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss, :selector_style => :dashed, :style => :compact)
+.module--component__state { bem: true; }
+
+[unknown="some_thing"] { is: attribute; }
+
+an_element { is: underscored; }
+
+anElement { is: camelCased; }
+CSS
+.module--component__state { bem: true; }
+[unknown="some_thing"] { is: attribute; }
+an_element { is: underscored}
+anElement { is: camelCased}
+SASS
+  end
 
   private
 
