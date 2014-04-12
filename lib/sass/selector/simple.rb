@@ -19,8 +19,10 @@ module Sass
       # selector). When the interpolation is resolved and the strings are joined
       # together, this will be the string representation of this node.
       #
+      # @param options [Hash] The Sass engine options.
+      #
       # @return [Array<String, Sass::Script::Tree::Node>]
-      def to_a
+      def to_a(options = {})
         Sass::Util.abstract(self)
       end
 

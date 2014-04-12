@@ -115,9 +115,9 @@ module Sass
       end
 
       # @see Simple#to_a
-      def to_a
+      def to_a(options = {})
         ary = @members.map do |seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op
+          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a(options) : seq_or_op
         end
         Sass::Util.intersperse(ary, " ").flatten.compact
       end

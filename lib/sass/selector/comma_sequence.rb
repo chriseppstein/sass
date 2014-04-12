@@ -76,8 +76,8 @@ module Sass
       end
 
       # @see Simple#to_a
-      def to_a
-        arr = Sass::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
+      def to_a(options = {})
+        arr = Sass::Util.intersperse(@members.map {|m| m.to_a(options)}, ", ").flatten
         arr.delete("\n")
         arr
       end

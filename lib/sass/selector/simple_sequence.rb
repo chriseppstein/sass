@@ -204,8 +204,8 @@ module Sass
       end
 
       # @see Simple#to_a
-      def to_a
-        res = @members.map {|sel| sel.to_a}.flatten
+      def to_a(options = {})
+        res = @members.map {|sel| sel.to_a(options)}.flatten
         res << '!' if subject?
         res
       end

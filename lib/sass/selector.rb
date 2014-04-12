@@ -38,7 +38,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         ["&", *@suffix]
       end
 
@@ -64,8 +64,8 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
-        [".", *@name]
+      def to_a(options = {})
+        [".", *enforce_selector_style(@name, options)]
       end
 
       # @see AbstractSequence#specificity
@@ -87,8 +87,8 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
-        ["#", *@name]
+      def to_a(options = {})
+        ["#", *enforce_selector_style(@name, options)]
       end
 
       # Returns `nil` if `sels` contains an {Id} selector
@@ -122,7 +122,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         ["%", *@name]
       end
 
@@ -148,7 +148,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         @namespace ? @namespace + ["|*"] : ["*"]
       end
 
@@ -222,7 +222,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         @namespace ? @namespace + ["|"] + @name : @name
       end
 
@@ -279,7 +279,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         [@script]
       end
 
@@ -339,7 +339,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         res = ["["]
         res.concat(@namespace) << "|" if @namespace
         res.concat @name
@@ -405,7 +405,7 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
+      def to_a(options = {})
         res = [syntactic_type == :class ? ":" : "::"] + @name
         (res << "(").concat(Sass::Util.strip_string_array(@arg)) << ")" if @arg
         res
@@ -450,8 +450,8 @@ module Sass
       end
 
       # @see Selector#to_a
-      def to_a
-        [":", @name, "("] + @selector.to_a + [")"]
+      def to_a(options = {})
+        [":", @name, "("] + @selector.to_a(options) + [")"]
       end
 
       # @see AbstractSequence#specificity
