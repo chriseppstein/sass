@@ -49,19 +49,16 @@ module Sass
     # @param name [Symbol] The name of the callback
     # @return [void]
     def define_callback(name)
-      class_eval <<RUBY, __FILE__, __LINE__ + 1
-def on_#{name}(&block)
-  @_sass_callbacks ||= {}
-  (@_sass_callbacks[#{name.inspect}] ||= []) << block
-end
-
-def run_#{name}(*args)
-  return unless @_sass_callbacks
-  return unless @_sass_callbacks[#{name.inspect}]
-  @_sass_callbacks[#{name.inspect}].each {|c| c[*args]}
-end
-private :run_#{name}
-RUBY
+      define_method(:"on_#{name}") do |&block|
+        @_sass_callbacks ||= {}
+        (@_sass_callbacks[name] ||= []) << block
+      end
+      define_method(:"run_#{name}") do |*args|
+        @_sass_callbacks &&
+        @_sass_callbacks[name] &&
+        @_sass_callbacks[name].each {|c| c[*args]}
+      end
+      private :"run_#{name}"
     end
   end
 end

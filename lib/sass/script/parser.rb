@@ -214,36 +214,36 @@ module Sass
         # sub is the name of the production beneath it,
         # and ops is a list of operators for this precedence level
         def production(name, sub, *ops)
-          class_eval <<RUBY, __FILE__, __LINE__ + 1
-            def #{name}
-              interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect})
-              return interp if interp
-              return unless e = #{sub}
-              while tok = try_toks(#{ops.map {|o| o.inspect}.join(', ')})
-                if interp = try_op_before_interp(tok, e)
-                  other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
-                  return interp unless other_interp
-                  return other_interp
-                end
-
-                e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type),
-                         e.source_range.start_pos)
+          define_method name do
+            interp = try_ops_after_interp(ops, name)
+            return interp if interp
+            e = send(sub)
+            return unless e
+            while (tok = try_toks(*ops))
+              if (interp = try_op_before_interp(tok, e))
+                other_interp = try_ops_after_interp(ops, name, interp)
+                return interp unless other_interp
+                return other_interp
               end
-              e
+
+              e = node(Tree::Operation.new(e, assert_expr(sub), tok.type),
+                       e.source_range.start_pos)
             end
-RUBY
+            e
+          end
         end
 
         def unary(op, sub)
-          class_eval <<RUBY, __FILE__, __LINE__ + 1
-            def unary_#{op}
-              return #{sub} unless tok = try_tok(:#{op})
-              interp = try_op_before_interp(tok)
-              return interp if interp
-              start_pos = source_position
-              node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
-            end
-RUBY
+          op = op.to_sym
+          unary_op = :"unary_#{op}"
+          define_method unary_op do
+            tok = try_tok(op)
+            return send(sub) unless tok
+            interp = try_op_before_interp(tok)
+            return interp if interp
+            start_pos = source_position
+            node(Tree::UnaryOperation.new(assert_expr(unary_op), op), start_pos)
+          end
         end
       end
 

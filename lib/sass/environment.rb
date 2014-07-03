@@ -12,48 +12,55 @@ module Sass
       end
 
       def inherited_hash_reader(name)
-        class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          def #{name}(name)
-            _#{name}(name.tr('_', '-'))
-          end
+        names_ivar = :"@#{name}s"
+        underscore_name = :"_#{name}"
+        is_global_name = :"is_#{name}_global?"
+        define_method(name) do |n|
+          send(underscore_name, n.tr('_', '-'))
+        end
 
-          def _#{name}(name)
-            (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
-          end
-          protected :_#{name}
+        define_method(underscore_name) do |n|
+          names = instance_variable_get(names_ivar)
+          names && names[n] || @parent && @parent.send(underscore_name, n)
+        end
+        protected underscore_name
 
-          def is_#{name}_global?(name)
-            return !@parent if @#{name}s && @#{name}s.has_key?(name)
-            @parent && @parent.is_#{name}_global?(name)
-          end
-        RUBY
+        define_method(is_global_name) do |n|
+          names = instance_variable_get(names_ivar)
+          return !@parent if names && names.has_key?(n)
+          @parent && @parent.send(is_global_name, n)
+        end
       end
 
       def inherited_hash_writer(name)
-        class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          def set_#{name}(name, value)
-            name = name.tr('_', '-')
-            @#{name}s[name] = value unless try_set_#{name}(name, value)
-          end
+        names_ivar = :"@#{name}s"
+        set_name = :"set_#{name}"
+        try_set_name = :"try_set_#{name}"
+        set_local_name = :"set_local_#{name}"
+        set_global_name = :"set_global_#{name}"
 
-          def try_set_#{name}(name, value)
-            @#{name}s ||= {}
-            if @#{name}s.include?(name)
-              @#{name}s[name] = value
-              true
-            elsif @parent
-              @parent.try_set_#{name}(name, value)
-            else
-              false
-            end
+        define_method(set_name) do |n, value|
+          names = instance_variable_get(names_ivar) || instance_variable_set(names_ivar, {})
+          n = n.tr('_', '-')
+          names[n] = value unless send(try_set_name, n, value)
+        end
+        define_method(try_set_name) do |n, value|
+          names = instance_variable_get(names_ivar) || instance_variable_set(names_ivar, {})
+          if names.include?(n)
+            names[n] = value
+            true
+          elsif @parent
+            @parent.send(try_set_name, n, value)
+          else
+            false
           end
-          protected :try_set_#{name}
+        end
+        protected try_set_name
 
-          def set_local_#{name}(name, value)
-            @#{name}s ||= {}
-            @#{name}s[name.tr('_', '-')] = value
-          end
-        RUBY
+        define_method(set_local_name) do|n, value|
+          names = instance_variable_get(names_ivar) || instance_variable_set(names_ivar, {})
+          names[n.tr('_', '-')] = value
+        end
       end
     end
 
